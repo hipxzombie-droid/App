@@ -1,0 +1,385 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;600&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{
+    --blk:#050505;--deep:#0a0710;--red:#A1122F;--red2:#6E0E20;
+    --redg:rgba(161,18,47,0.7);--wht:#F2F2F2;--pur:#7D52C7;
+    --pur2:#3B245B;--gry:#6A6A6A;--ylw:#F4C430;
+  }
+  body{background:transparent;color:var(--wht);font-family:'DM Sans',sans-serif;overflow:hidden}
+  .phone-shell{
+    width:375px;height:720px;background:var(--blk);border-radius:40px;
+    overflow:hidden;position:relative;margin:0 auto;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 30px 80px rgba(0,0,0,0.8);
+  }
+  canvas.bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .screen{position:absolute;inset:0;overflow:hidden;transition:opacity .5s ease,transform .5s ease;opacity:0;pointer-events:none;transform:translateX(30px)}
+  .screen.act{opacity:1;pointer-events:all;transform:translateX(0)}
+  .screen.out{opacity:0;transform:translateX(-30px)}
+
+  /* SPLASH */
+  #s-splash{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--blk)}
+  .splash-eye-wrap{width:120px;height:120px;position:relative;margin-bottom:32px}
+  #splash-canvas{width:120px;height:120px}
+  .splash-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:.06em;text-align:center;line-height:1}
+  .splash-title .r{color:var(--red);text-shadow:0 0 40px var(--redg)}
+  .splash-sub{font-family:'Oswald',sans-serif;font-weight:300;font-size:10px;letter-spacing:.55em;color:rgba(242,242,242,0.35);text-transform:uppercase;margin-top:12px;text-align:center}
+  .splash-bar{width:60px;height:1px;background:linear-gradient(to right,transparent,var(--red),transparent);margin:32px auto 0;animation:barGrow 2s ease forwards}
+  @keyframes barGrow{from{width:0;opacity:0}to{width:60px;opacity:1}}
+  .enter-tap{font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:rgba(242,242,242,0.3);margin-top:20px;animation:blink 1.6s ease infinite}
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:.8}}
+
+  /* HOME */
+  #s-home{background:var(--blk);overflow-y:auto}
+  .home-hero{height:340px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 24px}
+  #home-canvas{position:absolute;inset:0;width:100%;height:100%}
+  .home-vign{position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 50%,transparent 20%,var(--blk) 75%)}
+  .home-inner{position:relative;z-index:2}
+  .home-tag{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.55em;color:var(--pur);text-transform:uppercase;margin-bottom:10px}
+  .home-h1{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:.88;letter-spacing:.04em}
+  .home-h1 .w{color:var(--wht)}.home-h1 .p{color:var(--pur)}.home-h1 .r{color:var(--red);text-shadow:0 0 40px var(--redg)}
+  .home-sub{font-family:'Oswald',sans-serif;font-weight:300;font-style:italic;font-size:11px;color:rgba(242,242,242,.42);margin-top:10px;letter-spacing:.02em}
+  .card-nav{padding:0 16px 100px}
+  .nav-label{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.55em;color:var(--gry);text-transform:uppercase;margin:20px 0 12px;display:flex;align-items:center;gap:8px}
+  .nav-label::before{content:'';width:20px;height:1px;background:var(--red)}
+  .nav-cards{display:flex;flex-direction:column;gap:10px}
+  .nav-card{background:#0a0710;border:1px solid rgba(161,18,47,.22);padding:18px 18px;border-radius:8px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+  .nav-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,var(--red),transparent);transform:scaleX(0);transition:transform .35s}
+  .nav-card:active{transform:scale(.98);border-color:var(--red)}
+  .nav-card:active::before{transform:scaleX(1)}
+  .nc-icon{width:36px;height:36px;border-radius:50%;border:1px solid rgba(161,18,47,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+  .nc-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.07em}
+  .nc-sub{font-family:'Oswald',sans-serif;font-weight:300;font-size:9px;color:var(--gry);letter-spacing:.12em;margin-top:2px}
+  .nc-arr{margin-left:auto;color:var(--red);font-size:12px;opacity:.6}
+
+  /* INNER SCREEN BASE */
+  .inner-screen{background:var(--blk);overflow-y:auto;overflow-x:hidden}
+  .s-header{padding:54px 20px 20px;position:sticky;top:0;background:linear-gradient(to bottom,rgba(5,5,5,.97) 80%,transparent);z-index:50;backdrop-filter:blur(8px)}
+  .back-btn{display:flex;align-items:center;gap:6px;font-family:'Oswald',sans-serif;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--red);cursor:pointer;margin-bottom:16px;width:fit-content}
+  .back-btn::before{content:'←';font-size:12px}
+  .s-tag2{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.55em;color:var(--red);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .s-tag2::before{content:'';width:20px;height:1px;background:var(--red)}
+  .s-h2{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:.04em;line-height:.9}
+  .s-h2 .r{color:var(--red)}.s-h2 .p{color:var(--pur)}
+  .s-body{padding:0 20px 100px}
+
+  /* LEARN/WHAT */
+  .what-text{font-size:13px;line-height:1.85;color:rgba(242,242,242,.68);font-weight:300;margin-bottom:16px}
+  .what-text strong{color:var(--wht);font-weight:400}
+  .iq{border-left:2px solid var(--red);padding:14px 16px;background:rgba(161,18,47,.06);font-family:'Oswald',sans-serif;font-weight:300;font-style:italic;font-size:12px;line-height:1.6;color:rgba(242,242,242,.65);margin-top:16px;border-radius:0 4px 4px 0}
+  #what-canvas2{display:block;margin:20px auto;border-radius:4px;width:200px;height:200px}
+
+  /* SYMPTOMS */
+  .sym-cards-wrap{display:flex;flex-direction:column;gap:12px}
+  .sym-c{background:#080610;border:1px solid rgba(161,18,47,.2);padding:20px;border-radius:8px;transition:all .25s;cursor:default}
+  .sym-c:active{border-color:var(--red);transform:translateY(-3px);box-shadow:0 12px 30px rgba(161,18,47,.15)}
+  .sym-c-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.07em;color:var(--wht);margin:12px 0 6px}
+  .sym-c-body{font-size:12px;line-height:1.72;color:rgba(242,242,242,.52);font-weight:300}
+  .sym-eye-mini{width:36px;height:36px}
+
+  /* FEELS */
+  .fq-list{display:flex;flex-direction:column;gap:14px}
+  .fq2{padding:18px;border:1px solid rgba(125,82,199,.18);background:rgba(59,36,91,.07);border-radius:4px;font-family:'Oswald',sans-serif;font-weight:300;font-style:italic;font-size:14px;line-height:1.55;color:rgba(242,242,242,.8);position:relative;transition:all .3s}
+  .fq2::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--pur),var(--red));border-radius:2px 0 0 2px}
+  .fq2:active{border-color:var(--pur);background:rgba(59,36,91,.14)}
+
+  /* MYTH */
+  .myth-list{display:flex;flex-direction:column;gap:14px}
+  .myth-c{border-radius:8px;height:auto;cursor:pointer;perspective:800px}
+  .myth-inner2{position:relative;transform-style:preserve-3d;transition:transform .6s ease;min-height:140px}
+  .myth-c.flipped .myth-inner2{transform:rotateY(180deg)}
+  .myth-front2,.myth-back2{position:absolute;inset:0;backface-visibility:hidden;padding:20px;border-radius:8px;display:flex;flex-direction:column;justify-content:center;min-height:140px}
+  .myth-front2{background:#0a0712;border:1px solid rgba(161,18,47,.25);border-top:2px solid var(--red)}
+  .myth-back2{background:rgba(59,36,91,.22);border:1px solid rgba(125,82,199,.4);transform:rotateY(180deg)}
+  .myth-lbl{font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.48em;text-transform:uppercase;margin-bottom:8px}
+  .myth-lbl.m{color:var(--red)}.myth-lbl.f{color:var(--pur)}
+  .myth-txt{font-family:'Oswald',sans-serif;font-weight:300;font-size:13px;line-height:1.5;color:rgba(242,242,242,.82)}
+  .myth-hint{font-size:8px;letter-spacing:.18em;color:var(--gry);margin-top:10px;text-transform:uppercase;font-family:'Oswald',sans-serif}
+
+  /* HELP */
+  .help-steps-list{display:flex;flex-direction:column;gap:12px}
+  .hstep{display:flex;gap:14px;align-items:flex-start;padding:16px;border:1px solid rgba(125,82,199,.15);background:rgba(59,36,91,.06);border-radius:6px;transition:all .25s}
+  .hstep:active{border-color:rgba(125,82,199,.45);background:rgba(59,36,91,.14)}
+  .hnum{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:var(--pur);min-width:30px;opacity:.5}
+  .hcontent h4{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.07em;color:var(--wht);margin-bottom:4px}
+  .hcontent p{font-size:11px;line-height:1.68;color:rgba(242,242,242,.52);font-weight:300}
+
+  /* RESOURCES */
+  .res-cards{display:flex;flex-direction:column;gap:12px}
+  .rc{padding:18px;border:1px solid rgba(255,255,255,.05);background:rgba(8,6,16,.9);border-radius:8px;transition:all .25s}
+  .rc:active{border-color:var(--red);transform:translateY(-3px)}
+  .rc-icon{font-size:22px;margin-bottom:10px;display:block}
+  .rc-lbl{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--red);margin-bottom:5px}
+  .rc-txt{font-size:11px;line-height:1.65;color:rgba(242,242,242,.5);font-weight:300}
+  .rc-txt a{color:rgba(125,82,199,.8);text-decoration:none}
+  .care{margin-top:18px;padding:18px;border:1px solid rgba(161,18,47,.17);background:rgba(161,18,47,.04);border-radius:6px;font-size:11px;line-height:1.78;color:rgba(242,242,242,.5);font-weight:300;text-align:center}
+  .care strong{color:rgba(242,242,242,.8);font-weight:400}
+  .hashtag{margin-top:14px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.1em;color:rgba(161,18,47,.65)}
+
+  /* BIG QUOTE */
+  .big-quote-sec{padding:40px 20px;text-align:center;position:relative}
+  .bq{font-family:'Oswald',sans-serif;font-weight:300;font-style:italic;font-size:18px;line-height:1.45;color:var(--wht);max-width:320px;margin:0 auto}
+  .bq em{color:var(--red);font-style:normal}
+  .bq-attr{margin-top:14px;font-family:'Oswald',sans-serif;font-size:8px;letter-spacing:.4em;color:var(--pur);text-transform:uppercase}
+
+  /* BOTTOM NAV */
+  .bot-nav{position:absolute;bottom:0;left:0;right:0;height:76px;background:rgba(5,5,5,.96);border-top:1px solid rgba(255,255,255,.06);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-around;padding:0 8px 12px;z-index:100}
+  .bn-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:8px 12px;border-radius:8px;transition:all .2s;flex:1}
+  .bn-item:active{background:rgba(161,18,47,.1)}
+  .bn-icon{font-size:18px;line-height:1}
+  .bn-lbl{font-family:'Oswald',sans-serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--gry);transition:color .2s}
+  .bn-item.active .bn-lbl{color:var(--red)}
+  .bn-dot{width:4px;height:4px;border-radius:50%;background:var(--red);margin-top:2px;opacity:0;transition:opacity .2s}
+  .bn-item.active .bn-dot{opacity:1}
+</style>
+
+<div class="phone-shell" id="phone">
+  <!-- SPLASH -->
+  <div class="screen act" id="s-splash">
+    <canvas class="bg" id="bg-c" width="375" height="720"></canvas>
+    <canvas id="splash-canvas" width="240" height="240" style="width:120px;height:120px;margin-bottom:28px"></canvas>
+    <div class="splash-title"><span class="r">BEHIND</span><br>THE<br><span style="color:var(--wht)">SILENCE</span></div>
+    <div class="splash-sub">PPD Awareness Campaign 2026</div>
+    <div class="splash-bar"></div>
+    <div class="enter-tap" id="tap-hint">Tap to enter</div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="s-home">
+    <canvas class="bg" id="home-canvas" width="375" height="720"></canvas>
+    <div style="overflow-y:auto;height:100%;padding-bottom:80px">
+      <div class="home-hero">
+        <div class="home-vign"></div>
+        <div class="home-inner">
+          <div class="home-tag">PPD Awareness Campaign 2026</div>
+          <div class="home-h1"><span class="w">BEHIND</span><br><span class="p">THE</span><br><span class="r">SILENCE</span></div>
+          <div class="home-sub">"Not everything you feel is a threat — but every feeling is real."</div>
+        </div>
+      </div>
+      <div class="card-nav">
+        <div class="nav-label">Explore the campaign</div>
+        <div class="nav-cards">
+          <div class="nav-card" onclick="goTo('s-learn')"><div class="nc-icon">👁</div><div><div class="nc-title">What is PPD</div><div class="nc-sub">Understanding the condition</div></div><div class="nc-arr">›</div></div>
+          <div class="nav-card" onclick="goTo('s-symp')"><div class="nc-icon" style="border-color:rgba(125,82,199,.3)">⚡</div><div><div class="nc-title">Symptoms</div><div class="nc-sub">Recognising the signs</div></div><div class="nc-arr">›</div></div>
+          <div class="nav-card" onclick="goTo('s-feels')"><div class="nc-icon" style="border-color:rgba(125,82,199,.3)">💬</div><div><div class="nc-title">Feels Like</div><div class="nc-sub">The inner world</div></div><div class="nc-arr">›</div></div>
+          <div class="nav-card" onclick="goTo('s-myth')"><div class="nc-icon">🔀</div><div><div class="nc-title">Myth vs Fact</div><div class="nc-sub">Common misconceptions</div></div><div class="nc-arr">›</div></div>
+          <div class="nav-card" onclick="goTo('s-help')"><div class="nc-icon" style="border-color:rgba(125,82,199,.3)">🤝</div><div><div class="nc-title">How to Help</div><div class="nc-sub">Finding a path forward</div></div><div class="nc-arr">›</div></div>
+          <div class="nav-card" onclick="goTo('s-res')"><div class="nc-icon">📬</div><div><div class="nc-title">Resources</div><div class="nc-sub">Contact & support</div></div><div class="nc-arr">›</div></div>
+        </div>
+        <div class="big-quote-sec"><div class="bq">"Not everything you feel is a <em>threat</em> — but every feeling is <em>real</em>."</div><div class="bq-attr">— Behind The Silence 2026</div></div>
+      </div>
+    </div>
+    <div class="bot-nav" id="home-nav">
+      <div class="bn-item active" onclick="goTo('s-home')"><div class="bn-icon">🏠</div><div class="bn-lbl">Home</div><div class="bn-dot"></div></div>
+      <div class="bn-item" onclick="goTo('s-learn')"><div class="bn-icon">👁</div><div class="bn-lbl">Learn</div><div class="bn-dot"></div></div>
+      <div class="bn-item" onclick="goTo('s-myth')"><div class="bn-icon">🔀</div><div class="bn-lbl">Myth/Fact</div><div class="bn-dot"></div></div>
+      <div class="bn-item" onclick="goTo('s-res')"><div class="bn-icon">📬</div><div class="bn-lbl">Help</div><div class="bn-dot"></div></div>
+    </div>
+  </div>
+
+  <!-- LEARN -->
+  <div class="screen inner-screen" id="s-learn">
+    <div class="s-header"><div class="back-btn" onclick="goTo('s-home')">Back</div><div class="s-tag2">01 — Understanding</div><div class="s-h2">WHAT IS<br><span class="r">PPD</span></div></div>
+    <div class="s-body">
+      <canvas id="what-canvas2" width="400" height="400" style="display:block;margin:0 auto 20px;width:200px;height:200px;border-radius:4px"></canvas>
+      <p class="what-text">Paranoid Personality Disorder is a mental health condition defined by a <strong>deep, persistent pattern of distrust and suspicion</strong> of others — without clear cause. It is not a choice, a phase, or a character flaw.</p>
+      <p class="what-text">For those living with PPD, the threat feels <strong>completely and terrifyingly real</strong>. Every glance conceals a motive. Every word carries a hidden meaning. Every silence is a trap. The mind becomes a relentless surveillance machine — always scanning, never resting, never safe.</p>
+      <div class="iq">"The world feels like a stage of hidden eyes — watching, waiting, whispering."</div>
+      <div style="height:20px"></div>
+      <div style="background:#080610;border:1px solid rgba(161,18,47,.2);border-radius:8px;padding:18px;margin-top:4px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.07em;color:var(--wht);margin-bottom:12px">Key Facts</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:10px;align-items:flex-start"><div style="color:var(--red);font-size:14px;margin-top:1px">▸</div><div style="font-size:12px;line-height:1.6;color:rgba(242,242,242,.6);font-weight:300">Affects approximately 2.3% of the general population</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><div style="color:var(--red);font-size:14px;margin-top:1px">▸</div><div style="font-size:12px;line-height:1.6;color:rgba(242,242,242,.6);font-weight:300">More commonly diagnosed in men, but affects all genders</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><div style="color:var(--red);font-size:14px;margin-top:1px">▸</div><div style="font-size:12px;line-height:1.6;color:rgba(242,242,242,.6);font-weight:300">Often develops in early adulthood and persists without treatment</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><div style="color:var(--pur);font-size:14px;margin-top:1px">▸</div><div style="font-size:12px;line-height:1.6;color:rgba(242,242,242,.6);font-weight:300">CBT and sustained therapy can significantly improve quality of life</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYMPTOMS -->
+  <div class="screen inner-screen" id="s-symp">
+    <div class="s-header"><div class="back-btn" onclick="goTo('s-home')">Back</div><div class="s-tag2">02 — Recognising the Signs</div><div class="s-h2">SYMPTOMS</div></div>
+    <div class="s-body">
+      <div class="sym-cards-wrap">
+        <div class="sym-c"><svg class="sym-eye-mini" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="20" ry="13" fill="none" stroke="#A1122F" stroke-width="2"/><circle cx="22" cy="22" r="7" fill="#A1122F"/><circle cx="22" cy="22" r="3.5" fill="#050505"/><circle cx="19" cy="19" r="1.5" fill="#F2F2F2" opacity=".7"/></svg><div class="sym-c-title">Constant Suspicion</div><p class="sym-c-body">A relentless belief that others intend to exploit, harm, or deceive — even those closest to them. Trust evaporates. Everyone becomes suspect.</p></div>
+        <div class="sym-c"><svg class="sym-eye-mini" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="20" ry="13" fill="none" stroke="#7D52C7" stroke-width="2"/><circle cx="22" cy="22" r="7" fill="#7D52C7"/><circle cx="22" cy="22" r="3.5" fill="#050505"/><circle cx="19" cy="19" r="1.5" fill="#F2F2F2" opacity=".7"/></svg><div class="sym-c-title">Hidden Meanings</div><p class="sym-c-body">Neutral remarks become attacks. Kind gestures become traps. Every interaction is decoded for threats that others simply cannot see.</p></div>
+        <div class="sym-c"><svg class="sym-eye-mini" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="20" ry="13" fill="none" stroke="#A1122F" stroke-width="2" stroke-dasharray="4 3"/><circle cx="22" cy="22" r="7" fill="#6E0E20"/><circle cx="22" cy="22" r="3.5" fill="#050505"/><circle cx="19" cy="19" r="1.5" fill="#F2F2F2" opacity=".7"/></svg><div class="sym-c-title">Guarded & Withdrawn</div><p class="sym-c-body">Sharing personal information feels like handing someone a weapon. Vulnerability is impossible. Silence becomes the only armor.</p></div>
+        <div class="sym-c"><svg class="sym-eye-mini" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="20" ry="13" fill="none" stroke="#F4C430" stroke-width="1.5"/><circle cx="22" cy="22" r="7" fill="#A1122F"/><circle cx="22" cy="22" r="3.5" fill="#050505"/><circle cx="19" cy="19" r="1.5" fill="#F2F2F2" opacity=".7"/></svg><div class="sym-c-title">Explosive Reactions</div><p class="sym-c-body">Minor slights ignite lasting rage. Perceived betrayals are never forgotten. The emotional system runs permanently at maximum alert.</p></div>
+        <div class="sym-c"><svg class="sym-eye-mini" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="20" ry="13" fill="none" stroke="#A1122F" stroke-width="2"/><ellipse cx="22" cy="22" rx="20" ry="4" fill="none" stroke="rgba(161,18,47,0.35)" stroke-width="1"/><circle cx="22" cy="22" r="7" fill="#3B245B"/><circle cx="22" cy="22" r="3.5" fill="#050505"/><circle cx="19" cy="19" r="1.5" fill="#F2F2F2" opacity=".7"/></svg><div class="sym-c-title">Hypervigilance</div><p class="sym-c-body">The mind never powers down. It catalogues inconsistencies, memorises faces, anticipates betrayal — a surveillance system that cannot be switched off.</p></div>
+        <div class="sym-c"><svg class="sym-eye-mini" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="20" ry="13" fill="none" stroke="#7D52C7" stroke-width="2"/><circle cx="22" cy="22" r="7" fill="#7D52C7" opacity=".65"/><circle cx="22" cy="22" r="3.5" fill="#050505"/><circle cx="19" cy="19" r="1.5" fill="#F2F2F2" opacity=".7"/></svg><div class="sym-c-title">Shattered Relationships</div><p class="sym-c-body">Intimacy collapses when trust is unavailable. Love, friendship, belonging — all slip through fingers not out of want, but out of terror.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEELS LIKE -->
+  <div class="screen inner-screen" id="s-feels">
+    <div class="s-header"><div class="back-btn" onclick="goTo('s-home')">Back</div><div class="s-tag2">03 — The Inner World</div><div class="s-h2">WHAT IT<br><span class="p">FEELS LIKE</span></div></div>
+    <div class="s-body">
+      <div class="fq-list">
+        <div class="fq2">"Living with constant doubt isn't a choice — it's a silent struggle no one around you can see."</div>
+        <div class="fq2">"When fear writes the story, even truth sounds like a lie."</div>
+        <div class="fq2">"The world feels like a stage of hidden eyes — watching, waiting, whispering."</div>
+        <div class="fq2">"In the silence, every shadow speaks… and none of them feel safe."</div>
+        <div class="fq2">"Trust fades like light at sunset, leaving only questions in the dark."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MYTH VS FACT -->
+  <div class="screen inner-screen" id="s-myth">
+    <div class="s-header"><div class="back-btn" onclick="goTo('s-home')">Back</div><div class="s-tag2">04 — Common Misconceptions</div><div class="s-h2">MYTH VS<br><span class="r">FACT</span></div></div>
+    <div class="s-body">
+      <p style="font-size:12px;color:rgba(242,242,242,.45);font-family:'Oswald',sans-serif;font-weight:300;margin-bottom:18px;letter-spacing:.04em">Tap each card to reveal the truth.</p>
+      <div class="myth-list">
+        <div class="myth-c" onclick="this.classList.toggle('flipped')"><div class="myth-inner2"><div class="myth-front2"><div class="myth-lbl m">Myth</div><div class="myth-txt">"They're just being paranoid — it's all in their head."</div><div class="myth-hint">Tap to reveal ↻</div></div><div class="myth-back2"><div class="myth-lbl f">Fact</div><div class="myth-txt">PPD is a recognized clinical disorder. The fear is neurologically real — dismissing it causes further harm and isolation.</div></div></div></div>
+        <div class="myth-c" onclick="this.classList.toggle('flipped')"><div class="myth-inner2"><div class="myth-front2"><div class="myth-lbl m">Myth</div><div class="myth-txt">"People with PPD are dangerous or violent."</div><div class="myth-hint">Tap to reveal ↻</div></div><div class="myth-back2"><div class="myth-lbl f">Fact</div><div class="myth-txt">Those with PPD are far more likely to withdraw and isolate. They are more at risk of harm than being a source of it.</div></div></div></div>
+        <div class="myth-c" onclick="this.classList.toggle('flipped')"><div class="myth-inner2"><div class="myth-front2"><div class="myth-lbl m">Myth</div><div class="myth-txt">"They could stop being suspicious if they tried."</div><div class="myth-hint">Tap to reveal ↻</div></div><div class="myth-back2"><div class="myth-lbl f">Fact</div><div class="myth-txt">PPD is a deeply rooted thought pattern, not a choice. Professional therapy is required to slowly reframe distorted perceptions.</div></div></div></div>
+        <div class="myth-c" onclick="this.classList.toggle('flipped')"><div class="myth-inner2"><div class="myth-front2"><div class="myth-lbl m">Myth</div><div class="myth-txt">"PPD can't be treated or managed."</div><div class="myth-hint">Tap to reveal ↻</div></div><div class="myth-back2"><div class="myth-lbl f">Fact</div><div class="myth-txt">PPD responds to consistent therapy — especially CBT. Many people with PPD lead meaningful, fulfilling lives with proper support.</div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO HELP -->
+  <div class="screen inner-screen" id="s-help">
+    <div class="s-header"><div class="back-btn" onclick="goTo('s-home')">Back</div><div class="s-tag2">05 — Finding A Path Forward</div><div class="s-h2">HOW TO<br><span class="p">HELP</span></div></div>
+    <div class="s-body">
+      <p class="what-text" style="margin-bottom:20px">Whether you live with PPD or love someone who does — understanding is where healing begins.</p>
+      <div class="help-steps-list">
+        <div class="hstep"><div class="hnum">01</div><div class="hcontent"><h4>Seek Professional Support</h4><p>Cognitive-behavioural therapy (CBT) helps examine thought patterns and rebuild a different relationship with trust. A consistent, compassionate therapist is transformative.</p></div></div>
+        <div class="hstep"><div class="hnum">02</div><div class="hcontent"><h4>Build Safety In Small Steps</h4><p>Recovery is not about forcing trust overnight. Finding small, predictable moments of safety is a powerful and gentle start.</p></div></div>
+        <div class="hstep"><div class="hnum">03</div><div class="hcontent"><h4>Respond With Patience Not Logic</h4><p>For loved ones: patience matters more than arguments. Calmly, consistently showing up builds the bridge that logic alone cannot.</p></div></div>
+        <div class="hstep"><div class="hnum">04</div><div class="hcontent"><h4>Educate. Then Educate More.</h4><p>Understanding what PPD actually is — instead of what stigma says it is — is the most powerful gift you can give.</p></div></div>
+      </div>
+      <div class="big-quote-sec" style="margin-top:24px">
+        <div class="bq">"Not everything you feel is a <em>threat</em> — but every feeling is <em>real</em>."</div>
+        <div class="bq-attr">— Behind The Silence, PPD Awareness Campaign 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="screen inner-screen" id="s-res">
+    <div class="s-header"><div class="back-btn" onclick="goTo('s-home')">Back</div><div class="s-tag2">08 — Reach Out</div><div class="s-h2">CONTACT &<br><span class="p">SUPPORT</span></div></div>
+    <div class="s-body">
+      <p class="what-text" style="margin-bottom:20px">You are not alone. Whether you seek information, want to connect, or simply need someone to hear you.</p>
+      <div class="res-cards">
+        <div class="rc"><span class="rc-icon">📬</span><div class="rc-lbl">Campaign Team</div><p class="rc-txt">Questions, collaborations, or media inquiries.<br>ppd.awareness@school.edu</p></div>
+        <div class="rc"><span class="rc-icon">🧠</span><div class="rc-lbl">Mental Health</div><p class="rc-txt">Reaching out to a licensed mental health professional is always a brave and important first step forward.</p></div>
+        <div class="rc"><span class="rc-icon">📞</span><div class="rc-lbl">Crisis Support</div><p class="rc-txt">IASP Crisis Centers: Find your local center at iasp.info/resources<br><br>WHO Mental Health: who.int/mental_health</p></div>
+        <div class="rc"><span class="rc-icon">🌐</span><div class="rc-lbl">Share It</div><p class="rc-txt">Talk about it. Break the silence — one conversation at a time.</p></div>
+      </div>
+      <div class="hashtag">#BehindTheSilence &nbsp;·&nbsp; #PPDAwareness</div>
+      <div class="care"><strong>A note of care:</strong> This campaign was created by students for educational awareness. If you believe you or someone you love may have PPD, please consult a qualified mental health professional. <strong>Awareness is the beginning — professional support is the path forward.</strong></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const rand=(a,b)=>Math.random()*(b-a)+a;
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+// Eye animation engine
+function makeEyeCanvas(canvas, W, H, opts){
+  const ctx=canvas.getContext('2d');
+  let eyes=[],t=0,pts=[];
+  const ne=opts.count||6;
+  for(let i=0;i<ne;i++) eyes.push({
+    x:rand(W*.1,W*.9), y:rand(H*.1,H*.9),
+    sz:rand(opts.minSz||12, opts.maxSz||36),
+    angle:rand(0,Math.PI*2), rotSpd:rand(-.006,.006),
+    bT:rand(0,1), bD:1, bSpd:rand(.03,.07),
+    vx:rand(-.25,.25), vy:rand(-.2,.2),
+    col:Math.random()>.5?[161,18,47]:[125,82,199]
+  });
+  for(let i=0;i<(opts.particles||30);i++) pts.push({
+    x:rand(0,W),y:rand(0,H),vx:rand(-.15,.15),vy:rand(-.25,.05),
+    r:rand(.3,1.4),a:rand(.08,.4),col:Math.random()>.5?'161,18,47':'125,82,199'
+  });
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='rgba(5,5,5,'+(opts.bgAlpha||.85)+')';
+    ctx.fillRect(0,0,W,H);
+    t++;
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.save();ctx.globalAlpha=p.a;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.col},${p.a})`;ctx.fill();ctx.restore();
+    });
+    eyes.forEach(e=>{
+      e.angle+=e.rotSpd;e.x+=e.vx;e.y+=e.vy;
+      if(e.x<e.sz||e.x>W-e.sz)e.vx*=-1;if(e.y<e.sz||e.y>H-e.sz)e.vy*=-1;
+      e.bT+=e.bD*e.bSpd;if(e.bT>=1)e.bD=-1;else if(e.bT<=0)e.bD=1;
+      const s=e.sz,eh=s*.44*(1-e.bT*.86);
+      ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.angle);
+      ctx.globalAlpha=opts.alpha||.55;
+      ctx.beginPath();ctx.ellipse(0,0,s+3,Math.max(1.5,eh+2),0,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(${e.col},.5)`;ctx.lineWidth=5;ctx.stroke();
+      ctx.save();ctx.beginPath();ctx.ellipse(0,0,s,Math.max(1.5,eh),0,0,Math.PI*2);ctx.clip();
+      ctx.fillStyle='#1a0d14';ctx.fill();
+      const ig=ctx.createRadialGradient(0,0,0,0,0,s*.42);
+      ig.addColorStop(0,'#2a0030');ig.addColorStop(.4,'#7D52C7');ig.addColorStop(.8,'#A1122F');ig.addColorStop(1,'#2a0010');
+      ctx.beginPath();ctx.arc(0,0,s*.42,0,Math.PI*2);ctx.fillStyle=ig;ctx.fill();
+      ctx.beginPath();ctx.arc(0,0,s*.2,0,Math.PI*2);ctx.fillStyle='#000';ctx.fill();
+      ctx.beginPath();ctx.ellipse(-s*.08,-s*.1,s*.08,s*.05,-.4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.65)';ctx.fill();
+      ctx.restore();
+      ctx.beginPath();ctx.ellipse(0,0,s,Math.max(1.5,eh),0,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(${e.col},.9)`;ctx.lineWidth=1.5;ctx.stroke();
+      ctx.restore();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// SPLASH EYE — large single blinking eye
+const splashC=document.getElementById('splash-canvas');
+const sCtx=splashC.getContext('2d');
+let sBT=0,sBD=1,sPulse=0;
+function drawSplashEye(){
+  sCtx.clearRect(0,0,240,240);sPulse+=.025;
+  const p=.5+.5*Math.sin(sPulse);
+  const bg=sCtx.createRadialGradient(120,120,0,120,120,110);
+  bg.addColorStop(0,`rgba(161,18,47,${.15*p})`);bg.addColorStop(1,'transparent');
+  sCtx.fillStyle=bg;sCtx.fillRect(0,0,240,240);
+  sBT+=sBD*.04;if(sBT>=1)sBD=-1;else if(sBT<=0)sBD=1;
+  const s=75,eh=s*.46*(1-sBT*.88);
+  sCtx.save();sCtx.translate(120,120);
+  sCtx.beginPath();sCtx.ellipse(0,0,s+6,Math.max(3,eh+4),0,0,Math.PI*2);
+  sCtx.strokeStyle=`rgba(161,18,47,${.6+.3*p})`;sCtx.lineWidth=8;sCtx.stroke();
+  sCtx.beginPath();sCtx.ellipse(0,0,s+12,Math.max(3,eh+8),0,0,Math.PI*2);
+  sCtx.strokeStyle=`rgba(161,18,47,${.2*p})`;sCtx.lineWidth=4;sCtx.stroke();
+  sCtx.save();sCtx.beginPath();sCtx.ellipse(0,0,s,Math.max(3,eh),0,0,Math.PI*2);sCtx.clip();
+  sCtx.fillStyle='#0a0508';sCtx.fill();
+  const ig=sCtx.createRadialGradient(0,0,0,0,0,s*.5);
+  ig.addColorStop(0,'#2a0030');ig.addColorStop(.3,'#7D52C7');ig.addColorStop(.7,'#A1122F');ig.addColorStop(1,'#1a0008');
+  sCtx.beginPath();sCtx.arc(0,0,s*.52,0,Math.PI*2);sCtx.fillStyle=ig;sCtx.fill();
+  sCtx.beginPath();sCtx.arc(0,0,s*.26,0,Math.PI*2);sCtx.fillStyle='#000';sCtx.fill();
+  sCtx.beginPath();sCtx.ellipse(-s*.1,-s*.13,s*.1,s*.065,-.4,0,Math.PI*2);sCtx.fillStyle='rgba(255,255,255,.72)';sCtx.fill();
+  sCtx.restore();
+  sCtx.beginPath();sCtx.ellipse(0,0,s,Math.max(3,eh),0,0,Math.PI*2);
+  sCtx.strokeStyle='rgba(161,18,47,.95)';sCtx.lineWidth=2;sCtx.stroke();
+  sCtx.restore();
+  requestAnimationFrame(drawSplashEye);
+}
+drawSplashEye();
+
+// BG canvas particles/eyes
+makeEyeCanvas(document.getElementById('bg-c'),375,720,{count:8,minSz:10,maxSz:28,particles:40,alpha:.18,bgAlpha:.88});
+makeEyeCanvas(document.getElementById('home-canvas'),375,720,{count:5,minSz:8,maxSz:22,particles:50,alpha:.12,bgAlpha:.0});
+
+// What canvas
+makeEyeCanvas(document.getElementById('what-canvas2'),400,400,{count:4,minSz:20,maxSz:52,particles:20,alpha:.7,bgAlpha:.92});
+
+// Navigation
+function goTo(id){
+  const screens=document.querySelectorAll('.screen');
+  screens.forEach(s=>s.classList.remove('act','out'));
+  const target=document.getElementById(id);
+  if(target){target.classList.add('act');if(id!=='s-splash')target.scrollTop=0}
+}
+document.getElementById('s-splash').addEventListener('click',()=>goTo('s-home'));
+</script>
